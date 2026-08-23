@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>行动代号</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+    <header>
+        <span>房间：<span id="roomDisplay"></span></span>
+        <span>状态：<span id="stateDisplay"></span></span>
+        <span>蓝方：<span id="blueTime">00:00</span></span>
+        <span>红方：<span id="redTime">00:00</span></span>
+        <span id="userInfo"></span>
+    </header>
+    <div id="errorToast"></div>
+
+    <!-- 分组视图 -->
+    <div id="groupingView">
+        <h2>分组</h2>
+        <div class="teams">
+            <div class="team red">
+                <h3>红方 <button class="firstBtn" data-team="RED">先手</button></h3>
+                <div id="redPlayers" class="players"></div>
+            </div>
+            <div class="team blue">
+                <h3>蓝方 <button class="firstBtn" data-team="BLUE">先手</button></h3>
+                <div id="bluePlayers" class="players"></div>
+            </div>
+        </div>
+        <div class="settings">
+            <label>行数：<input type="number" id="rowsInput" min="2" max="10" value="5"></label>
+            <label>列数：<input type="number" id="colsInput" min="2" max="10" value="5"></label>
+            <label>杀手数：<input type="number" id="blackInput" min="0" max="5" value="1"></label>
+            <label>每队猜词数：<input type="number" id="teamCountInput" min="0" max="20" value="8"></label>
+        </div>
+        <button id="startBtn">开始游戏</button>
+    </div>
+
+    <!-- 游戏视图 -->
+    <div id="gameView" style="display:none">
+        <div id="board" class="board"></div>
+        <div class="game-info">
+            <div>红方剩余：<span id="redLeft">0</span></div>
+            <div>蓝方剩余：<span id="blueLeft">0</span></div>
+            <div>平民剩余：<span id="civilianLeft">0</span></div>
+        </div>
+        <div id="actionButtons">
+            <button id="revealBtn" style="display:none">对 / 错</button>
+            <button id="endTurnBtn" style="display:none">结束行动</button>
+        </div>
+    </div>
+
+    <!-- 游戏结束视图 -->
+    <div id="gameOverView" style="display:none">
+        <h2 id="winnerText"></h2>
+        <button id="adjustBtn">调整分组</button>
+        <button id="playAgainBtn">再来一局</button>
+    </div>
+</div>
+
+<!-- 交换请求弹窗 -->
+<div id="swapModal" style="display:none">
+    <p id="swapText"></p>
+    <button id="swapAccept">同意</button>
+    <button id="swapReject">拒绝</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

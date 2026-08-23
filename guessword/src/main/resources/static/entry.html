@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>进入房间 - 行动代号</title>
+</head>
+<body>
+<h2>行动代号 - 进入房间</h2>
+<label>昵称：<input id="nickname" /></label><br>
+<label>房间号：<input id="roomId" /></label><br>
+<button id="enterBtn">进入</button>
+<p id="error" style="color:red"></p>
+
+<script>
+    const nicknameInput = document.getElementById('nickname');
+    const roomInput = document.getElementById('roomId');
+    const error = document.getElementById('error');
+
+    const savedNickname = localStorage.getItem('nickname');
+    if (savedNickname) nicknameInput.value = savedNickname;
+
+    const savedRoom = sessionStorage.getItem('room');
+    if (savedRoom && /^\d{4}$/.test(savedRoom)) roomInput.value = savedRoom;
+
+    document.getElementById('enterBtn').onclick = () => {
+        const nick = nicknameInput.value.trim();
+        const room = roomInput.value.trim();
+        if (!nick) {
+            error.textContent = '请输入昵称';
+            return;
+        }
+        if (!/^\d{4}$/.test(room)) {
+            error.textContent = '房间号必须为4位数字';
+            return;
+        }
+        localStorage.setItem('nickname', nick);
+        sessionStorage.setItem('room', room);
+        location.href = 'index.html';
+    };
+</script>
+</body>
+</html>
