@@ -4,11 +4,8 @@ import io.github.dingljcn.games.guessword.entity.Room;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 @Component
 public class RoomManager {
@@ -34,6 +31,10 @@ public class RoomManager {
         return rooms.get(roomId);
     }
 
+    public Collection<Room> getAllRooms() {
+        return rooms.values();
+    }
+
     public WordPoolService getWordPoolService() {
         return wordPoolService;
     }
@@ -42,6 +43,10 @@ public class RoomManager {
         if (room != null) {
             room.setLastActivity(System.currentTimeMillis());
         }
+    }
+
+    public void removeRoom(String roomId) {
+        rooms.remove(roomId);
     }
 
     private void cleanupRooms() {
