@@ -60,7 +60,7 @@
     let ws;
     function connect() {
         const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-        ws = new WebSocket(protocol + location.host + '/ws');
+        ws = new WebSocket(protocol + location.host + '/guessword/ws');
         ws.onopen = () => {
             ws.send(JSON.stringify({ type: 'get_rooms' }));
         };
@@ -73,7 +73,7 @@
             } else if (msg.type === 'joined') {
                 sessionStorage.setItem('room', msg.roomId);
                 sessionStorage.setItem('nickname', document.getElementById('nicknameCreate').value || document.getElementById('nicknameJoin').value);
-                location.href = 'index.html';
+                location.href = '/guessword/index.html';
             }
         };
         ws.onclose = () => setTimeout(connect, 2000);

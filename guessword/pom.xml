@@ -68,7 +68,6 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>io.github.dingljcn.games.guessword.GuesswordApplication</mainClass>
-                    <skip>true</skip>
                 </configuration>
                 <executions>
                     <execution>

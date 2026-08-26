@@ -26,12 +26,12 @@ const errorToast = document.getElementById('errorToast');
 
 function load_room(room) {
     if (!room || room === '0' || !/^\d{4}$/.test(room)) {
-        location.href = 'entry.html';
+        location.href = '/guessword/entry.html';
         return;
     }
     const nickname = sessionStorage.getItem('nickname');
     if (!nickname) {
-        location.href = 'entry.html';
+        location.href = '/guessword/entry.html';
         return;
     }
     if (!sessionStorage.getItem('clientId')) {
@@ -46,7 +46,7 @@ load_room(room);
 
 function connect() {
     const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    ws = new WebSocket(protocol + location.host + '/ws');
+    ws = new WebSocket(protocol + location.host + '/guessword/ws');
     ws.onopen = () => {
         send({
             type: 'join',
@@ -95,10 +95,10 @@ function handleMessage(msg) {
             break;
         case 'room_dissolved':
             alert('房间已解散');
-            location.href = 'entry.html';
+            location.href = '/guessword/entry.html';
             break;
         case 'left_room':
-            location.href = 'entry.html';
+            location.href = '/guessword/entry.html';
             break;
         case 'error':
             showError(msg.message);
