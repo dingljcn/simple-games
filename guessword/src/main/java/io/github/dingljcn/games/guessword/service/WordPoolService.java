@@ -6,12 +6,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class WordPoolService {
@@ -27,20 +24,39 @@ public class WordPoolService {
         }
     }
 
-    /**
-     * 优先选择 cnt 较小的词汇
-     */
     public List<String> pickWords(int count) {
-        List<WordEntry> sorted = new ArrayList<>(entries);
-        sorted.sort(Comparator.comparingInt(WordEntry::getCnt));
-        int poolSize = Math.min(sorted.size(), Math.max(count, count * 3));
-        List<WordEntry> pool = sorted.subList(0, poolSize);
-        Collections.shuffle(pool);
+        List<WordEntry> available = entries.stream()
+                .filter(e -> e.getCnt() >= 0)
+                .sorted(Comparator.comparingInt(WordEntry::getCnt))
+                .collect(Collectors.toList());
+        if (available.size() < count) {
+            // 不够时重复使用，避免出错
+            List<String> result = new ArrayList<>();
+            for (WordEntry e : available) result.add(e.getWord());
+            while (result.size() < count) result.add("备用词" + (result.size() + 1));
+            return result.subList(0, count);
+        }
+        Collections.shuffle(available.subList(0, Math.min(available.size(), count * 2)));
         List<String> result = new ArrayList<>();
-        for (int i = 0; i < count && i < pool.size(); i++) {
-            result.add(pool.get(i).getWord());
+        for (int i = 0; i < count; i++) {
+            result.add(available.get(i).getWord());
         }
         return result;
+    }
+
+    public void discardWords(List<String> words) throws IOException {
+        for (String w : words) {
+            for (WordEntry e : entries) {
+                if (e.getWord().equals(w)) {
+                    e.setCnt(-1);
+                    break;
+                }
+            }
+        }
+        // 写回文件
+        ClassPathResource resource = new ClassPathResource("word-pool.json");
+        File file = resource.getFile();
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, entries);
     }
 
     public static class WordEntry {

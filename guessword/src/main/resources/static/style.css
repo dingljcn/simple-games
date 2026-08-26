@@ -1,321 +1,43 @@
-/* 全局 */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f5f7fa;
-    color: #1f2d3d;
-    min-height: 100vh;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-}
-
-#app {
-    width: 100%;
-    max-width: 900px;
-}
-
-/* 顶部栏 */
-header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-    background-color: #ffffff;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    margin-bottom: 20px;
-    font-size: 14px;
-}
-
-header span {
-    white-space: nowrap;
-}
-
-#userInfo {
-    font-weight: 500;
-    color: #409eff;
-    margin-left: auto;
-}
-
-/* 错误提示 */
-#errorToast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #f56c6c;
-    color: white;
-    padding: 12px 18px;
-    border-radius: 6px;
-    font-size: 14px;
-    display: none;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(245,108,108,0.4);
-}
-
-/* 按钮 */
-button {
-    background-color: #409eff;
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: #337ecc;
-}
-
-button:active {
-    background-color: #2b6cb0;
-}
-
-button.firstBtn {
-    background-color: #e4e7ed;
-    color: #606266;
-    margin-left: 8px;
-}
-
-button.firstBtn.active {
-    background-color: #ffd700;
-    color: #303133;
-    font-weight: bold;
-}
-
-button#startBtn {
-    margin-top: 20px;
-    padding: 10px 24px;
-    font-size: 16px;
-}
-
-/* 分组视图 */
-.teams {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.team {
-    flex: 1;
-    min-width: 250px;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-}
-
-.team.red h3 { color: #f56c6c; }
-.team.blue h3 { color: #409eff; }
-
-.players {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 12px;
-}
-
-.player-card {
-    border: 2px solid #ebeef5;
-    border-radius: 6px;
-    padding: 10px;
-    text-align: center;
-    background-color: #ffffff;
-    transition: border-color 0.2s;
-}
-
-.player-card.me {
-    border-color: #409eff;
-}
-
-.player-card.red {
-    background-color: #fef0f0;
-}
-
-.player-card.blue {
-    background-color: #ecf5ff;
-}
-
-.player-card .nickname {
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.player-card .role {
-    font-size: 12px;
-    color: #909399;
-}
-
-/* 设置区域 */
-.settings {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    background: #ffffff;
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    margin-top: 20px;
-    flex-wrap: wrap;
-}
-
-.settings label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-}
-
-.settings input {
-    width: 60px;
-    padding: 6px 8px;
-    border: 1px solid #dcdfe6;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.settings input:focus {
-    outline: none;
-    border-color: #409eff;
-    box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
-}
-
-/* 棋盘 */
-.board {
-    display: grid;
-    gap: 8px;
-    margin: 20px 0;
-}
-
-.card {
-    aspect-ratio: 1 / 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #ffffff;
-    border: 2px solid #dcdfe6;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 16px;
-    user-select: none;
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-/* 当前指认高亮：不改变背景色，仅加粗放大和边框 */
-.card.highlighted {
-    border: 3px solid #17b4ff;
-    font-weight: bold;
-    font-size: 20px;
-    box-shadow: 0 0 0 2px #17b4ff;
-    transform: scale(1.02);
-}
-
-/* 描述者视角未翻开的颜色 */
-.card.spymaster-red {
-    background-color: #ffb3b3;
-    border-color: #ffb3b3;
-}
-
-.card.spymaster-blue {
-    background-color: #b3d1ff;
-    border-color: #b3d1ff;
-}
-
-.card.spymaster-civilian {
-    background-color: #ffe19a;
-    border-color: #ffe19a;
-}
-
-.card.spymaster-black {
-    background-color: #333333;
-    border-color: #333333;
-    color: #ffffff;
-}
-
-/* 已翻开的牌（所有人可见） */
-.card.revealed.red {
-    background-color: #ff1515;
-    border-color: #ff1515;
-    color: white;
-}
-
-.card.revealed.blue {
-    background-color: #3964fe;
-    border-color: #3964fe;
-    color: white;
-}
-
-.card.revealed.civilian {
-    background-color: #ffae15;
-    border-color: #ffae15;
-    color: white;
-}
-
-.card.revealed.black {
-    background-color: #333333;
-    border-color: #333333;
-    color: white;
-}
-
-/* 游戏信息 */
-.game-info {
-    display: flex;
-    gap: 20px;
-    background: #ffffff;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-}
-
-#actionButtons {
-    margin-top: 16px;
-    display: flex;
-    gap: 10px;
-}
-
-/* 游戏结束 */
-#gameOverView {
-    text-align: center;
-    padding: 40px;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-}
-
-#gameOverView h2 {
-    margin-bottom: 20px;
-}
-
-/* 交换弹窗 */
-#swapModal {
-    position: fixed;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #ffffff;
-    padding: 20px 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    display: none;
-    z-index: 2000;
-    text-align: center;
-}
-
-#swapModal p {
-    margin-bottom: 16px;
-    font-size: 16px;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; color: #1f2d3d; padding: 20px; display: flex; justify-content: center; }
+#app { width: 100%; max-width: 1000px; }
+header { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; background: #fff; padding: 12px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 20px; font-size: 14px; }
+#userInfo { font-weight: 500; color: #409eff; margin-left: auto; }
+#errorToast { position: fixed; top: 20px; right: 20px; background: #f56c6c; color: white; padding: 12px 18px; border-radius: 6px; font-size: 14px; display: none; z-index: 1000; }
+button { background: #409eff; border: none; color: white; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; margin: 2px; }
+button:hover { background: #337ecc; }
+button.danger { background: #f56c6c; }
+button.danger:hover { background: #e04444; }
+button.success { background: #67c23a; }
+button.firstBtn { background: #e4e7ed; color: #606266; }
+button.firstBtn.active { background: #ffd700; color: #303133; font-weight: bold; }
+.config-display { background: #fff; padding: 15px; border-radius: 6px; margin-bottom: 10px; }
+.teams { display: flex; gap: 20px; flex-wrap: wrap; }
+.team { flex: 1; min-width: 200px; padding: 15px; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.players { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+.player-card { border: 2px solid #ebeef5; border-radius: 6px; padding: 10px; text-align: center; background: #fff; }
+.player-card.me { border-color: #409eff; }
+.player-card .nickname { font-weight: 600; }
+.player-card .role { font-size: 12px; color: #909399; }
+.ready-badge { display: inline-block; width: 20px; height: 20px; background: #67c23a; color: white; border-radius: 50%; text-align: center; line-height: 20px; font-size: 12px; margin-left: 5px; }
+.board { display: grid; gap: 8px; margin: 20px 0; }
+.card { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; background: #fff; border: 2px solid #dcdfe6; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 16px; user-select: none; transition: all 0.3s ease; }
+.card:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.card.highlighted { border: 3px solid #17b4ff; font-weight: bold; font-size: 20px; box-shadow: 0 0 0 2px #17b4ff; transform: scale(1.02); }
+.card.spymaster-red { background: #ffb3b3; border-color: #ffb3b3; }
+.card.spymaster-blue { background: #b3d1ff; border-color: #b3d1ff; }
+.card.spymaster-green { background: #9DF29F; border-color: #9DF29F; color: #000; }
+.card.spymaster-purple { background: #af7ce1; border-color: #af7ce1; color: #fff; }
+.card.spymaster-civilian { background: #ffe19a; border-color: #ffe19a; }
+.card.spymaster-black { background: #333333; border-color: #333333; color: #fff; }
+.card.revealed.red { background: #ff1515; border-color: #ff1515; color: white; }
+.card.revealed.blue { background: #3964fe; border-color: #3964fe; color: white; }
+.card.revealed.green { background: #15AC70; border-color: #15AC70; color: white; }
+.card.revealed.purple { background: #663399; border-color: #663399; color: white; }
+.card.revealed.civilian { background: #ffae15; border-color: #ffae15; color: white; }
+.card.revealed.black { background: #333333; border-color: #333333; color: white; }
+.game-info { display: flex; gap: 15px; background: #fff; padding: 12px; border-radius: 8px; }
+#actionButtons { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+#gameOverView, #groupingView, #gameView { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+#swapModal, #confirmModal, #pendingModal { position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: none; z-index: 2000; text-align: center; }
+#dissolveBtn { font-size: 14px; font-weight: normal; }

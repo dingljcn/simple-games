@@ -2,41 +2,137 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>进入房间 - 行动代号</title>
+    <title>行动代号 - 入口</title>
+    <style>
+        body { font-family: sans-serif; background: #f5f7fa; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 800px; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+        h1, h2 { color: #1f2d3d; }
+        label { display: block; margin: 10px 0 5px; }
+        input, button { padding: 8px 12px; border-radius: 4px; border: 1px solid #dcdfe6; font-size: 14px; }
+        button { background: #409eff; color: white; border: none; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #337ecc; }
+        .room-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .room-card { border: 1px solid #dcdfe6; border-radius: 6px; padding: 10px; width: 180px; }
+        .room-card .roomId { font-size: 18px; font-weight: bold; }
+        .room-card .host { color: #909399; }
+        .join-btn { background: #67c23a; }
+        .join-btn:hover { background: #5daf34; }
+    </style>
 </head>
 <body>
-<h2>行动代号 - 进入房间</h2>
-<label>昵称：<input id="nickname" /></label><br>
-<label>房间号：<input id="roomId" /></label><br>
-<button id="enterBtn">进入</button>
-<p id="error" style="color:red"></p>
-
+<div class="container">
+    <h1>行动代号</h1>
+    <div class="card">
+        <h2>创建房间</h2>
+        <label>昵称：<input id="nicknameCreate" /></label>
+        <label>房间号：<input id="roomIdCreate" /></label>
+        <label>行数：<input type="number" id="rowsCreate" value="5" min="2" max="10" /></label>
+        <label>列数：<input type="number" id="colsCreate" value="5" min="2" max="10" /></label>
+        <label>每队猜词数：<input type="number" id="teamCardCountCreate" value="8" min="1" max="20" /></label>
+        <label>杀手数：<input type="number" id="blackCountCreate" value="1" min="0" max="10" /></label>
+        <label>队伍数：<input type="number" id="teamCountCreate" value="2" min="1" max="4" /></label>
+        <button id="createBtn">创建并进入</button>
+    </div>
+    <div class="card">
+        <h2>加入房间</h2>
+        <label>昵称：<input id="nicknameJoin" /></label>
+        <label>房间号：<input id="roomIdJoin" /></label>
+        <button id="joinBtn">直接加入</button>
+        <h3>现有房间</h3>
+        <div id="roomList" class="room-list"></div>
+    </div>
+</div>
 <script>
-    const nicknameInput = document.getElementById('nickname');
-    const roomInput = document.getElementById('roomId');
-    const error = document.getElementById('error');
+    // 使用 sessionStorage 存储 clientId 和昵称，确保不同标签页独立
+    if (!sessionStorage.getItem('clientId')) {
+        sessionStorage.setItem('clientId', Date.now() + '-' + Math.random().toString(36).substr(2, 9));
+    }
+    const clientId = sessionStorage.getItem('clientId');
 
-    const savedNickname = localStorage.getItem('nickname');
-    if (savedNickname) nicknameInput.value = savedNickname;
+    // 从 sessionStorage 读取昵称（如果存在）
+    const savedNickname = sessionStorage.getItem('nickname');
+    if (savedNickname) {
+        document.getElementById('nicknameCreate').value = savedNickname;
+        document.getElementById('nicknameJoin').value = savedNickname;
+    }
 
-    const savedRoom = sessionStorage.getItem('room');
-    if (savedRoom && /^\d{4}$/.test(savedRoom)) roomInput.value = savedRoom;
+    let ws;
+    function connect() {
+        const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
+        ws = new WebSocket(protocol + location.host + '/guessword/ws');
+        ws.onopen = () => {
+            ws.send(JSON.stringify({ type: 'get_rooms' }));
+        };
+        ws.onmessage = (e) => {
+            const msg = JSON.parse(e.data);
+            if (msg.type === 'room_list') {
+                renderRoomList(msg.rooms);
+            } else if (msg.type === 'error') {
+                alert('错误：' + msg.message);
+            } else if (msg.type === 'joined') {
+                sessionStorage.setItem('room', msg.roomId);
+                sessionStorage.setItem('nickname', document.getElementById('nicknameCreate').value || document.getElementById('nicknameJoin').value);
+                location.href = '/guessword/index.html';
+            }
+        };
+        ws.onclose = () => setTimeout(connect, 2000);
+        ws.onerror = () => ws.close();
+    }
+    connect();
 
-    document.getElementById('enterBtn').onclick = () => {
-        const nick = nicknameInput.value.trim();
-        const room = roomInput.value.trim();
-        if (!nick) {
-            error.textContent = '请输入昵称';
-            return;
-        }
-        if (!/^\d{4}$/.test(room)) {
-            error.textContent = '房间号必须为4位数字';
-            return;
-        }
-        localStorage.setItem('nickname', nick);
-        sessionStorage.setItem('room', room);
-        location.href = 'index.html';
-    };
+    function renderRoomList(rooms) {
+        const container = document.getElementById('roomList');
+        container.innerHTML = '';
+        rooms.forEach(r => {
+            const div = document.createElement('div');
+            div.className = 'room-card';
+            div.innerHTML = `
+                    <div class="roomId">${r.roomId}</div>
+                    <div class="host">房主：${r.host}</div>
+                    <div>${r.rows}x${r.cols} | 队伍${r.teamCount} | 每队${r.teamCardCount}词 | 杀手${r.blackCount}</div>
+                    <button class="join-btn" data-room="${r.roomId}">加入</button>
+                `;
+            container.appendChild(div);
+        });
+        container.querySelectorAll('.join-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('roomIdJoin').value = btn.dataset.room;
+                document.getElementById('joinBtn').click();
+            });
+        });
+    }
+
+    document.getElementById('createBtn').addEventListener('click', () => {
+        const nick = document.getElementById('nicknameCreate').value.trim();
+        const roomId = document.getElementById('roomIdCreate').value.trim();
+        if (!nick || !roomId) { alert('请填写昵称和房间号'); return; }
+        sessionStorage.setItem('nickname', nick);
+        ws.send(JSON.stringify({
+            type: 'create_room',
+            roomId: roomId,
+            nickname: nick,
+            clientId: clientId,
+            rows: parseInt(document.getElementById('rowsCreate').value),
+            cols: parseInt(document.getElementById('colsCreate').value),
+            teamCardCount: parseInt(document.getElementById('teamCardCountCreate').value),
+            blackCount: parseInt(document.getElementById('blackCountCreate').value),
+            teamCount: parseInt(document.getElementById('teamCountCreate').value)
+        }));
+    });
+
+    document.getElementById('joinBtn').addEventListener('click', () => {
+        const nick = document.getElementById('nicknameJoin').value.trim();
+        const roomId = document.getElementById('roomIdJoin').value.trim();
+        if (!nick || !roomId) { alert('请填写昵称和房间号'); return; }
+        sessionStorage.setItem('nickname', nick);
+        ws.send(JSON.stringify({
+            type: 'join',
+            roomId: roomId,
+            nickname: nick,
+            clientId: clientId
+        }));
+    });
 </script>
 </body>
 </html>
